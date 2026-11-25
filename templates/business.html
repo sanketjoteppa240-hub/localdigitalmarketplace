@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ business.name }} | LocalMart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="business-page">
+    <header>
+        <nav class="navbar">
+            <a class="logo" href="{{ url_for('home') }}">LocalMart<span>.</span></a>
+            <div class="account-links">
+                <a href="{{ url_for('cart') }}" class="cart-link">
+                    Cart <span class="cart-count">{{ cart_count }}</span>
+                </a>
+                {% if current_user %}
+                    <a href="{{ url_for('profile') }}" class="login-btn">My Profile</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="login-link">Log in</a>
+                    <a href="{{ url_for('register') }}" class="login-btn">Register</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+    <main class="business-detail">
+        <div class="business-image {{ business.image_class }}">{{ business.image }}</div>
+        <span class="business-tag">{{ business.category }}</span>
+        <h1>{{ business.name }}</h1>
+        <p>{{ business.description }}</p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}" role="status">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+        <section class="product-section" aria-labelledby="products-heading">
+            <div class="product-section-heading">
+                <h2 id="products-heading">Available Products</h2>
+                <p>{{ business.products|length }} items available</p>
+            </div>
+            <form method="post" action="{{ url_for('add_to_cart', slug=business.slug) }}">
+                <ul class="product-grid">
+                    {% for product in business.products %}
+                        <li class="product-card">
+                            <label class="product-select">
+                                <input type="checkbox" name="products" value="{{ product }}">
+                                <span class="product-name">{{ product }}</span>
+                            </label>
+                            <label class="quantity-label">
+                                <span class="visually-hidden">Quantity for {{ product }}</span>
+                                <input type="number" name="quantity_{{ loop.index }}"
+                                       min="1" max="99" value="1">
+                            </label>
+                            <span class="product-availability">Available</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <button type="submit" class="register-btn add-to-cart-btn">
+                    Add selected to cart
+                </button>
+            </form>
+        </section>
+        <section class="map-section" aria-labelledby="map-heading">
+            <div class="product-section-heading">
+                <h2 id="map-heading">Find this location</h2>
+                <a class="map-open-link"
+                   href="https://www.openstreetmap.org/?mlat={{ business.latitude }}&amp;mlon={{ business.longitude }}#map=16/{{ business.latitude }}/{{ business.longitude }}"
+                   target="_blank" rel="noopener noreferrer">Open full map ↗</a>
+            </div>
+            <p class="map-location">{{ business.map_label }}</p>
+            <iframe
+                class="location-map"
+                title="OpenStreetMap: {{ business.map_label }}"
+                src="https://www.openstreetmap.org/export/embed.html?bbox={{ business.map_bbox }}&amp;layer=mapnik&amp;marker={{ business.latitude }},{{ business.longitude }}"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+            <p class="map-note">{{ business.map_note }}</p>
+            <p class="map-attribution">
+                Map data © <a href="https://www.openstreetmap.org/copyright"
+                              target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>.
+            </p>
+        </section>
+        <a href="{{ url_for('home') }}#businesses" class="view-btn">← Back to businesses</a>
+    </main>
+</body>
+</html>

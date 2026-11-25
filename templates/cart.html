@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart | LocalMart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a class="logo" href="{{ url_for('home') }}">LocalMart<span>.</span></a>
+            <div class="account-links">
+                <a href="{{ url_for('cart') }}" class="cart-link" aria-current="page">
+                    Cart <span class="cart-count">{{ cart_count }}</span>
+                </a>
+                {% if current_user %}
+                    <a href="{{ url_for('profile') }}" class="login-btn">My Profile</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="login-link">Log in</a>
+                    <a href="{{ url_for('register') }}" class="login-btn">Register</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+    <main class="cart-page">
+        <h1>Your Cart</h1>
+        <p class="cart-description">{{ total_items }} item(s) in your cart.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}" role="status">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        {% if items %}
+            <div class="cart-list">
+                {% for item in items %}
+                    <article class="cart-item">
+                        <div>
+                            <a class="cart-store-link"
+                               href="{{ url_for('business_detail', slug=item.business_slug) }}">
+                                {{ item.business_name }}
+                            </a>
+                            <h2>{{ item.product }}</h2>
+                        </div>
+                        <form class="cart-update-form" method="post"
+                              action="{{ url_for('update_cart') }}">
+                            <input type="hidden" name="business_slug"
+                                   value="{{ item.business_slug }}">
+                            <input type="hidden" name="product" value="{{ item.product }}">
+                            <label>
+                                <span class="visually-hidden">Quantity for {{ item.product }}</span>
+                                <input type="number" name="quantity" min="1" max="99"
+                                       value="{{ item.quantity }}">
+                            </label>
+                            <button type="submit" name="action" value="update">Update</button>
+                            <button type="submit" name="action" value="remove"
+                                    class="cart-remove">Remove</button>
+                        </form>
+                    </article>
+                {% endfor %}
+            </div>
+            <div class="cart-actions">
+                <p class="cart-total">Total quantity: {{ total_items }}</p>
+                <form method="post" action="{{ url_for('update_cart') }}">
+                    <button class="cart-clear-btn" type="submit" name="action" value="clear">
+                        Clear cart
+                    </button>
+                </form>
+            </div>
+            <p class="cart-note">This demo catalog does not include prices or checkout.</p>
+        {% else %}
+            <p class="cart-empty">
+                Your cart is empty. Choose products from a local business to get started.
+                <a href="{{ url_for('home') }}">Browse businesses</a>.
+            </p>
+        {% endif %}
+    </main>
+</body>
+</html>

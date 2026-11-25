@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ category.name }} | LocalMart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a class="logo" href="{{ url_for('home') }}">LocalMart<span>.</span></a>
+            <div class="account-links">
+                <a href="{{ url_for('cart') }}" class="cart-link">
+                    Cart <span class="cart-count">{{ cart_count }}</span>
+                </a>
+                {% if current_user %}
+                    <a href="{{ url_for('profile') }}" class="login-btn">My Profile</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="login-link">Log in</a>
+                    <a href="{{ url_for('register') }}" class="login-btn">Register</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+    <main class="category-page">
+        <h1>{{ category.icon }} {{ category.name }}</h1>
+        <p class="category-description">Browse products from LocalMart businesses in this category.</p>
+
+        {% if businesses %}
+            {% for business in businesses %}
+                <section class="category-store">
+                    <span class="business-tag">{{ business.category }}</span>
+                    <h2>{{ business.name }}</h2>
+                    <p>{{ business.description }}</p>
+                    <h3>{{ business.products|length }} available products</h3>
+                    <ul class="category-product-list">
+                        {% for product in business.products %}
+                            <li>{{ product }}</li>
+                        {% endfor %}
+                    </ul>
+                    <a class="category-store-link"
+                       href="{{ url_for('business_detail', slug=business.slug) }}#products-heading">
+                        Choose products and add to cart →
+                    </a>
+                </section>
+            {% endfor %}
+        {% else %}
+            <p class="cart-empty">
+                There are no businesses or products in this category yet.
+                <a href="{{ url_for('home') }}">Browse all businesses</a>.
+            </p>
+        {% endif %}
+    </main>
+</body>
+</html>
